@@ -1,3 +1,4 @@
+(function(){
 $(document).ready(function(){
 
     // hook up an event handler for the load button click
@@ -33,9 +34,12 @@ console.log(worksheetData._data[0][0]._value, Math.round(worksheetData._data[0][
     
 
         createGauges(worksheetData);
+        buildSumDataTable(worksheetData);
 			
  });
-    });
+    
+
+});
        
         }, function(err){
             //something went wrong in initialization
@@ -43,3 +47,35 @@ console.log(worksheetData._data[0][0]._value, Math.round(worksheetData._data[0][
         });   
     });
 });
+
+
+
+
+
+  function buildSumDataTable(worksheetData){
+
+    $('#sumDataTable > tbody tr').remove();
+    const sumDataTable = $('#sumDataTable > tbody')[0];
+    console.log('sumDataTable: ' + sumDataTable);
+    console.dir(sumDataTable);
+  
+
+  for (var i =0; i< worksheetData._data.length; i++){
+    var label =  worksheetData._data[i][0]._value, 
+        value = (worksheetData._data[i][1]._value*100).toFixed(1); 
+        
+        var newRow = sumDataTable.insertRow(sumDataTable.rows.length)
+        var nameCell = newRow.insertCell(0);
+        var valueCell = newRow.insertCell(1);
+
+       nameCell.innerHTML = label;
+       valueCell.innerHTML = value;
+       console.log('value'+ value);
+
+
+  }
+    $('th').css({"font-size": "100%", "font-weight": "bold"});
+    $('td').css({"font-size":"100%"});
+  }
+
+})();

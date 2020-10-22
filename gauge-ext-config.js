@@ -1,28 +1,43 @@
 var gauges = [];
-function createGauge(name, label, min, max)
+function createGauge(name, label, size, smTicks, bigTicks, min, max)
 			{
+				console.log('start of config for bigTicks: ' + bigTicks);
 				var config = 
 				{
-					size: 320,
+					size: undefined != size ? parseInt(size) : 220,
 					label: label,
-					min: undefined != min ? min : 0,
-					max: undefined != max ? max : 100,
-                    minorTicks: 10,
-                    majorTicks:  11
+					min: undefined != min ? parseInt(min) : 0,
+					max: undefined != max ? parseInt(max) : 100,
+                    minorTicks: undefined != smTicks ? parseInt(smTicks) : 10,
+                    majorTicks:  undefined !=bigTicks ? parseInt(bigTicks) : 11
 				}
-				
+				console.log('config in createGauge: ' +JSON.stringify(config));
 				var range = config.max - config.min;
-				config.yellowZones = [{ from: config.min + range/3, to: config.min + range*2/3 }];
-				config.redZones = [{ from: config.min + range*0, to: config.max/3 }];             
+				console.log('inside gauge range: ' + range)
+				console.log('create Guage i: '+ name);
+				console.log('config in function: ' + JSON.stringify(config));
+				config.yellowZones = [{ from: config.min + range*0.2, to: config.min + range*0.4 }];
+				config.redZones = [{ from: config.min + range*0.4, to: config.min + range*1 }];             
 				gauges[name] = new Gauge(name + "GaugeContainer", config);
-                gauges[name].render();
+				gauges[name].render();
+				
                 
 			}
 			
-			function createGauges(worksheetData)
-			{   for (i = 0 ; i< 3; i++){
-				createGauge( worksheetData._data[i][0]._value, worksheetData._data[i][0]._value );
-                gauges[worksheetData._data[i][0]._value].redraw(worksheetData._data[i][1]._value*100);                  
+            function createGauges(worksheetData, config)
+          
+			{   d3.selectAll(".gauge").remove();
+                console.log('createGauges function'+JSON.stringify(worksheetData));
+                console.log('createGauges function config: ' + config);
+                for (i = 0 ; i< 3; i++){
+				// createGauge( worksheetData._data[i][0]._value, worksheetData._data[i][0]._value );
+				var setting = JSON.parse(config);
+				console.log('i: '+i+ ' label: '+ setting[i].label+ ' min: '+ setting[i].min);
+				createGauge(setting[i].label, setting[i].label, setting[i].size,
+				setting[i].minorTicks, setting[i].majorTicks, setting[i].min, setting[i].max);
+				gauges[worksheetData._data[i][0]._value].redraw(worksheetData._data[i][1]._value
+				/Math.pow(10, setting[i].oom));    
+                console.log('createGauges function end: '+ JSON.stringify(setting[i]));              
             }
 			
 			}
@@ -46,7 +61,8 @@ function Gauge(placeholderName, configuration)
 		this.config.min = undefined != configuration.min ? configuration.min : 0; 
 		this.config.max = undefined != configuration.max ? configuration.max : 100; 
 		this.config.range = this.config.max - this.config.min;
-		
+		console.log('this.config.min: ' + this.config.min);
+		console.log('this.config.max: ' + this.config.max);
 		this.config.majorTicks = configuration.majorTicks || 5;
 		this.config.minorTicks = configuration.minorTicks || 2;
 		
@@ -58,7 +74,7 @@ function Gauge(placeholderName, configuration)
 	}
 
 	this.render = function()
-	{
+	{	
 		this.body = d3.select("#chart_div")
 							.append("svg:svg")
 							.attr("class", "gauge")
